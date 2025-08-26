@@ -18,13 +18,18 @@ import { Copy, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddMemberDialogProps {
-  onAddMember: (name: string) => void;
+  onAddMember: (name: string, fromUrl?: boolean) => void;
 }
 
 export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleShareLink = () => {
     const link = `${window.location.origin}/join`;
@@ -39,7 +44,7 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      onAddMember(name.trim());
+      onAddMember(name.trim(), false);
       toast({
         title: "Member Added",
         description: `${name.trim()} has been added to the group.`,
@@ -73,7 +78,7 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
             <div className="flex items-center space-x-2">
                 <Input
                     id="link"
-                    defaultValue={`${window.location.origin}/join`}
+                    defaultValue={isClient ? `${window.location.origin}/join` : ""}
                     readOnly
                 />
                 <Button type="button" size="sm" onClick={handleShareLink}>
@@ -113,5 +118,4 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
     </Dialog>
   );
 }
-
     

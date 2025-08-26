@@ -11,8 +11,10 @@ import { AddMemberDialog } from "@/components/add-member-dialog";
 import { AiAssignmentDialog } from "@/components/ai-assignment-dialog";
 import { TaskReportDialog } from "@/components/task-report-dialog";
 import { TaskCard } from "@/components/task-card";
-import { PlusCircle, UserPlus, BrainCircuit, BarChartHorizontal } from "lucide-react";
+import { PlusCircle, UserPlus, BrainCircuit, BarChartHorizontal, Check, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function HomeComponent() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -23,10 +25,10 @@ function HomeComponent() {
   useEffect(() => {
     setIsClient(true);
     const initialMembers: Member[] = [
-      { id: "1", name: "Alice", avatarUrl: "https://picsum.photos/seed/alice/100/100" },
-      { id: "2", name: "Bob", avatarUrl: "https://picsum.photos/seed/bob/100/100" },
-      { id: "3", name: "Charlie", avatarUrl: "https://picsum.photos/seed/charlie/100/100" },
-      { id: '4', name: 'Diana', avatarUrl: 'https://picsum.photos/seed/diana/100/100' },
+      { id: "1", name: "Alice", avatarUrl: "https://picsum.photos/seed/alice/100/100", status: 'approved' },
+      { id: "2", name: "Bob", avatarUrl: "https://picsum.photos/seed/bob/100/100", status: 'approved' },
+      { id: "3", name: "Charlie", avatarUrl: "https://picsum.photos/seed/charlie/100/100", status: 'approved' },
+      { id: '4', name: 'Diana', avatarUrl: 'https://picsum.photos/seed/diana/100/100', status: 'approved' },
     ];
 
     const today = new Date();
@@ -40,27 +42,35 @@ function HomeComponent() {
     ];
     setMembers(initialMembers);
     setTasks(initialTasks);
+  }, []);
 
+  useEffect(() => {
     const newMemberName = searchParams.get('newMember');
     if (newMemberName) {
       const decodedName = decodeURIComponent(newMemberName);
       if (!members.some(m => m.name === decodedName)) {
         handleAddMember(decodedName, true);
       }
+      window.history.replaceState({}, '', '/');
     }
-  }, []);
+  }, [searchParams]);
 
   const handleAddMember = (name: string, fromUrl = false) => {
     const newMember: Member = {
       id: Date.now().toString(),
       name,
       avatarUrl: `https://picsum.photos/seed/${name}/100/100`,
+      status: fromUrl ? 'pending' : 'approved',
     };
     setMembers((prev) => [...prev, newMember]);
-    if(fromUrl) {
-      // clean up the URL
-      window.history.replaceState({}, '', '/');
-    }
+  };
+  
+  const handleApproveMember = (memberId: string) => {
+    setMembers(prev => prev.map(m => m.id === memberId ? { ...m, status: 'approved' } : m));
+  };
+  
+  const handleDeclineMember = (memberId: string) => {
+    setMembers(prev => prev.filter(m => m.id !== memberId));
   };
 
   const handleAddTask = (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt">) => {
@@ -88,22 +98,18 @@ function HomeComponent() {
     setTasks(tasks.filter(task => task.id !== taskId));
   };
 
+  const { approvedMembers, pendingMembers } = useMemo(() => {
+    const approved = members.filter(m => m.status === 'approved');
+    const pending = members.filter(m => m.status === 'pending');
+    return { approvedMembers: approved, pendingMembers: pending };
+  }, [members]);
+
 
   const { completedTasks, todoTasks } = useMemo(() => {
     const completed = tasks.filter((task) => task.completed).sort((a, b) => (b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0));
     const todo = tasks.filter((task) => !task.completed).sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
     return { completedTasks: completed, todoTasks: todo };
   }, [tasks]);
-
-  useEffect(() => {
-    const newMemberName = searchParams.get('newMember');
-    if (newMemberName) {
-      const decodedName = decodeURIComponent(newMemberName);
-      if (!members.find(m => m.name.toLowerCase() === decodedName.toLowerCase())) {
-        handleAddMember(decodedName, true);
-      }
-    }
-  }, [searchParams, members]);
 
 
   if (!isClient) {
@@ -123,12 +129,12 @@ function HomeComponent() {
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <AddMemberDialog onAddMember={handleAddMember} />
-              <AddTaskDialog members={members} onAddTask={handleAddTask} />
+              <AddTaskDialog members={approvedMembers} onAddTask={handleAddTask} />
             </div>
           </div>
           <div className="pb-4 flex flex-wrap gap-2">
-              <AiAssignmentDialog members={members} tasks={tasks} />
-              <TaskReportDialog members={members} tasks={tasks} />
+              <AiAssignmentDialog members={approvedMembers} tasks={tasks} />
+              <TaskReportDialog members={approvedMembers} tasks={tasks} />
           </div>
         </div>
         <Separator />
@@ -136,6 +142,38 @@ function HomeComponent() {
 
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-12">
+
+        {pendingMembers.length > 0 && (
+          <section id="pending-requests">
+            <h2 className="text-3xl font-headline font-bold mb-6">Pending Requests</h2>
+            <Card>
+                <CardContent className="p-4 space-y-4">
+                {pendingMembers.map((member) => (
+                    <div key={member.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-4">
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage src={member.avatarUrl} alt={member.name} data-ai-hint="person portrait" />
+                                <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <p className="font-semibold">{member.name}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button size="icon" variant="outline" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDeclineMember(member.id)}>
+                                <X className="size-4" />
+                                <span className="sr-only">Decline</span>
+                            </Button>
+                            <Button size="icon" variant="outline" className="text-accent hover:bg-accent/10 hover:text-accent" onClick={() => handleApproveMember(member.id)}>
+                                <Check className="size-4" />
+                                <span className="sr-only">Approve</span>
+                            </Button>
+                        </div>
+                    </div>
+                ))}
+                </CardContent>
+            </Card>
+          </section>
+          )}
+
           <section id="todo">
             <h2 className="text-3xl font-headline font-bold mb-6">To-Do</h2>
             {todoTasks.length > 0 ? (
@@ -144,7 +182,7 @@ function HomeComponent() {
                   <TaskCard
                     key={task.id}
                     task={task}
-                    assignee={members.find((m) => m.id === task.assigneeId)}
+                    assignee={approvedMembers.find((m) => m.id === task.assigneeId)}
                     onToggleCompletion={handleToggleTaskCompletion}
                     onDelete={handleDeleteTask}
                   />
@@ -163,7 +201,7 @@ function HomeComponent() {
                 <TaskCard
                   key={task.id}
                   task={task}
-                  assignee={members.find((m) => m.id === task.assigneeId)}
+                  assignee={approvedMembers.find((m) => m.id === task.assigneeId)}
                   onToggleCompletion={handleToggleTaskCompletion}
                   onDelete={handleDeleteTask}
                 />
