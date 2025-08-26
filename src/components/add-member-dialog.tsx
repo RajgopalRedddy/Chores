@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus } from "lucide-react";
+import { Copy, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddMemberDialogProps {
@@ -24,6 +25,16 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const { toast } = useToast();
+
+  const handleShareLink = () => {
+    const link = `${window.location.origin}/join`;
+    navigator.clipboard.writeText(link).then(() => {
+      toast({
+        title: "Link Copied",
+        description: "Share this link with your new team member.",
+      });
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,14 +63,35 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Add New Member</DialogTitle>
-            <DialogDescription>
-              Enter the name of the new member to add them to your group.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
+        <DialogHeader>
+          <DialogTitle>Add New Member</DialogTitle>
+          <DialogDescription>
+            Invite a member with a shareable link or add them directly.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+            <div className="flex items-center space-x-2">
+                <Input
+                    id="link"
+                    defaultValue={`${window.location.origin}/join`}
+                    readOnly
+                />
+                <Button type="button" size="sm" onClick={handleShareLink}>
+                    <span className="sr-only">Copy</span>
+                    <Copy className="h-4 w-4" />
+                </Button>
+            </div>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or Add Directly
+              </span>
+            </div>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
                 Name
@@ -70,15 +102,16 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
                 onChange={(e) => setName(e.target.value)}
                 className="col-span-3"
                 placeholder="e.g. Jane Doe"
-                required
               />
             </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Add Member</Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button type="submit">Add Member</Button>
+            </DialogFooter>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
 }
+
+    

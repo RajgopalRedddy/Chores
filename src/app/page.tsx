@@ -1,6 +1,8 @@
+
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
+import { useSearchParams } from 'next/navigation'
 import type { Member, Task } from "@/types";
 import { Button } from "@/components/ui/button";
 import { SplitWorkLogo } from "@/components/split-work-logo";
@@ -12,10 +14,11 @@ import { TaskCard } from "@/components/task-card";
 import { PlusCircle, UserPlus, BrainCircuit, BarChartHorizontal } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
-export default function Home() {
+function HomeComponent() {
   const [members, setMembers] = useState<Member[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setIsClient(true);
@@ -37,15 +40,27 @@ export default function Home() {
     ];
     setMembers(initialMembers);
     setTasks(initialTasks);
+
+    const newMemberName = searchParams.get('newMember');
+    if (newMemberName) {
+      const decodedName = decodeURIComponent(newMemberName);
+      if (!members.some(m => m.name === decodedName)) {
+        handleAddMember(decodedName, true);
+      }
+    }
   }, []);
 
-  const handleAddMember = (name: string) => {
+  const handleAddMember = (name: string, fromUrl = false) => {
     const newMember: Member = {
       id: Date.now().toString(),
       name,
       avatarUrl: `https://picsum.photos/seed/${name}/100/100`,
     };
     setMembers((prev) => [...prev, newMember]);
+    if(fromUrl) {
+      // clean up the URL
+      window.history.replaceState({}, '', '/');
+    }
   };
 
   const handleAddTask = (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt">) => {
@@ -79,6 +94,17 @@ export default function Home() {
     const todo = tasks.filter((task) => !task.completed).sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
     return { completedTasks: completed, todoTasks: todo };
   }, [tasks]);
+
+  useEffect(() => {
+    const newMemberName = searchParams.get('newMember');
+    if (newMemberName) {
+      const decodedName = decodeURIComponent(newMemberName);
+      if (!members.find(m => m.name.toLowerCase() === decodedName.toLowerCase())) {
+        handleAddMember(decodedName, true);
+      }
+    }
+  }, [searchParams, members]);
+
 
   if (!isClient) {
     return null; // or a loading skeleton
@@ -155,3 +181,13 @@ export default function Home() {
     </div>
   );
 }
+
+
+export default function Home() {
+  return (
+    <Suspense>
+      <HomeComponent />
+    </Suspense>
+  )
+}
+    
