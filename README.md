@@ -1,5 +1,12 @@
-# Firebase Studio
+# SplitWork
 
-This is a NextJS starter in Firebase Studio.
+This is a Next.js application, similar to Splitwise, but for managing and assigning tasks within a group.
 
-To get started, take a look at src/app/page.tsx.
+## Features
+
+- **Group &amp; Member Management**: Add members to your group.
+- **Task Management**: Create, assign, and track tasks.
+- **AI-Powered Suggestions**: Get smart suggestions for task assignments based on workload.
+- **Reporting**: Generate reports on task completion.
+
+Built with Next.js, TypeScript, Tailwind CSS, and Genkit AI.
