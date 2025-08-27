@@ -44,17 +44,6 @@ function HomeComponent() {
     setTasks(initialTasks);
   }, []);
 
-  useEffect(() => {
-    const newMemberName = searchParams.get('newMember');
-    if (newMemberName) {
-      const decodedName = decodeURIComponent(newMemberName);
-      if (!members.some(m => m.name === decodedName)) {
-        handleAddMember(decodedName, true);
-      }
-      window.history.replaceState({}, '', '/');
-    }
-  }, [searchParams]);
-
   const handleAddMember = (name: string, fromUrl = false) => {
     const newMember: Member = {
       id: Date.now().toString(),
@@ -64,6 +53,20 @@ function HomeComponent() {
     };
     setMembers((prev) => [...prev, newMember]);
   };
+  
+  useEffect(() => {
+    const newMemberName = searchParams.get('newMember');
+    if (newMemberName) {
+      const decodedName = decodeURIComponent(newMemberName);
+      if (!members.some(m => m.name === decodedName)) {
+        handleAddMember(decodedName, true);
+      }
+      // This is a bit of a hack to remove the query param from the URL without a full page reload.
+      // It keeps the URL clean after the member is added.
+      window.history.replaceState({}, '', '/');
+    }
+  }, [searchParams, members]);
+
   
   const handleApproveMember = (memberId: string) => {
     setMembers(prev => prev.map(m => m.id === memberId ? { ...m, status: 'approved' } : m));
@@ -228,4 +231,5 @@ export default function Home() {
     </Suspense>
   )
 }
+    
     
