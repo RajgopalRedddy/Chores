@@ -15,16 +15,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, UserPlus } from "lucide-react";
+import { Copy, UserPlus, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddMemberDialogProps {
-  onAddMember: (name: string, email: string, fromUrl?: boolean) => void;
+  onInviteMember: (email: string) => void;
 }
 
-export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
+export function AddMemberDialog({ onInviteMember }: AddMemberDialogProps) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
@@ -43,21 +42,20 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleInvite = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim() && email.trim()) {
-      onAddMember(name.trim(), email.trim(), false);
+    if (email.trim()) {
+      onInviteMember(email.trim());
       toast({
-        title: "Member Added",
-        description: `${name.trim()} has been added to the group.`,
+        title: "Invitation Sent",
+        description: `An invitation to join has been logged for ${email.trim()}. They can now register using the shared link.`,
       });
-      setName("");
       setEmail("");
       setOpen(false);
     } else {
         toast({
             title: "Error",
-            description: "Member name and email cannot be empty.",
+            description: "Email cannot be empty.",
             variant: "destructive",
         })
     }
@@ -67,51 +65,20 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <UserPlus className="mr-2 h-4 w-4" /> Add Member
+          <UserPlus className="mr-2 h-4 w-4" /> Invite Member
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Member</DialogTitle>
+          <DialogTitle>Invite New Member</DialogTitle>
           <DialogDescription>
-            Invite a member with a shareable link or add them directly.
+            Authorize an email to join, then share the registration link.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
-            <div className="flex items-center space-x-2">
-                <Input
-                    id="link"
-                    defaultValue={isClient ? `${window.location.origin}/join` : ""}
-                    readOnly
-                />
-                <Button type="button" size="sm" onClick={handleShareLink}>
-                    <span className="sr-only">Copy</span>
-                    <Copy className="h-4 w-4" />
-                </Button>
-            </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or Add Directly
-              </span>
-            </div>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleInvite} className="space-y-4">
             <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Jane Doe"
-                  required
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email to Invite</Label>
                 <Input
                   id="email"
                   type="email"
@@ -122,12 +89,36 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
                 />
             </div>
             <DialogFooter>
-              <Button type="submit">Add Member</Button>
+              <Button type="submit" className="w-full">
+                <Send className="mr-2 h-4 w-4"/> Authorize & Invite
+              </Button>
             </DialogFooter>
           </form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Then Share Link
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+              <Input
+                  id="link"
+                  defaultValue={isClient ? `${window.location.origin}/join` : ""}
+                  readOnly
+              />
+              <Button type="button" size="sm" onClick={handleShareLink}>
+                  <span className="sr-only">Copy</span>
+                  <Copy className="h-4 w-4" />
+              </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-    

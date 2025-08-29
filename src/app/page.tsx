@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from 'next/navigation'
-import type { Member, Task } from "@/types";
+import type { Member, Task, InvitedEmail } from "@/types";
 import { Button } from "@/components/ui/button";
 import { SplitWorkLogo } from "@/components/split-work-logo";
 import { AddTaskDialog } from "@/components/add-task-dialog";
@@ -36,6 +36,7 @@ const initialTasks: Task[] = [
 function HomeComponent() {
   const [members, setMembers] = useState<Member[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [invitedEmails, setInvitedEmails] = useState<InvitedEmail[]>([]);
   const [isClient, setIsClient] = useState(false);
   const searchParams = useSearchParams();
 
@@ -44,6 +45,7 @@ function HomeComponent() {
     try {
       const storedMembers = localStorage.getItem("splitwork_members");
       const storedTasks = localStorage.getItem("splitwork_tasks");
+      const storedInvitedEmails = localStorage.getItem("splitwork_invited_emails");
 
       if (storedMembers) {
         setMembers(JSON.parse(storedMembers));
@@ -62,10 +64,16 @@ function HomeComponent() {
       } else {
         setTasks(initialTasks);
       }
+
+      if(storedInvitedEmails) {
+        setInvitedEmails(JSON.parse(storedInvitedEmails).map((invited: InvitedEmail) => ({...invited, invitedAt: new Date(invited.invitedAt)})));
+      }
+
     } catch (error) {
       console.error("Failed to load data from localStorage", error);
       setMembers(initialMembers);
       setTasks(initialTasks);
+      setInvitedEmails([]);
     }
   }, []);
 
@@ -81,14 +89,20 @@ function HomeComponent() {
     }
   }, [tasks, isClient]);
 
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem("splitwork_invited_emails", JSON.stringify(invitedEmails));
+    }
+  }, [invitedEmails, isClient]);
 
-  const handleAddMember = (name: string, email: string, fromUrl = false) => {
+
+  const handleAddMember = (name: string, email: string) => {
     const newMember: Member = {
       id: Date.now().toString(),
       name,
       email,
       avatarUrl: `https://picsum.photos/seed/${name}/100/100`,
-      status: fromUrl ? 'pending' : 'approved',
+      status: 'pending',
     };
     setMembers((prev) => [...prev, newMember]);
   };
@@ -101,13 +115,22 @@ function HomeComponent() {
       const decodedName = decodeURIComponent(newMemberName);
       const decodedEmail = decodeURIComponent(newMemberEmail);
       if (!members.some(m => m.email === decodedEmail)) {
-        handleAddMember(decodedName, decodedEmail, true);
+        handleAddMember(decodedName, decodedEmail);
       }
+      // Remove the invited email from the list once they've registered
+      setInvitedEmails(prev => prev.filter(i => i.email !== decodedEmail));
       window.history.replaceState({}, '', '/');
     }
   }, [searchParams, members, isClient]);
-
   
+  const handleInviteMember = (email: string) => {
+    const newInvite: InvitedEmail = {
+      email,
+      invitedAt: new Date(),
+    };
+    setInvitedEmails(prev => [...prev, newInvite]);
+  };
+
   const handleApproveMember = (memberId: string) => {
     setMembers(prev => prev.map(m => m.id === memberId ? { ...m, status: 'approved' } : m));
   };
@@ -178,7 +201,7 @@ function HomeComponent() {
               </h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <AddMemberDialog onAddMember={handleAddMember} />
+              <AddMemberDialog onInviteMember={handleInviteMember} />
               <AddTaskDialog onAddTask={handleAddTask} />
             </div>
           </div>
@@ -281,7 +304,3 @@ export default function Home() {
     </Suspense>
   )
 }
-    
-    
-
-    
