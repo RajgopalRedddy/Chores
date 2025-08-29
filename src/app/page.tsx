@@ -16,6 +16,23 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+const initialMembers: Member[] = [
+  { id: "1", name: "Alice", email: 'alice@example.com', avatarUrl: "https://picsum.photos/seed/alice/100/100", status: 'approved' },
+  { id: "2", name: "Bob", email: 'bob@example.com', avatarUrl: "https://picsum.photos/seed/bob/100/100", status: 'approved' },
+  { id: "3", name: "Charlie", email: 'charlie@example.com', avatarUrl: "https://picsum.photos/seed/charlie/100/100", status: 'approved' },
+  { id: '4', name: 'Diana', email: 'diana@example.com', avatarUrl: 'https://picsum.photos/seed/diana/100/100', status: 'approved' },
+];
+
+const today = new Date();
+const initialTasks: Task[] = [
+  { id: 't1', title: 'Design new landing page', description: 'Create a Figma mockup.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 3)), completed: false, createdAt: new Date(), completedAt: null },
+  { id: 't2', title: 'Develop API for user auth', description: 'Setup endpoints for registration, login, logout.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 5)), completed: false, createdAt: new Date(), completedAt: null },
+  { id: 't3', title: 'Setup CI/CD pipeline', description: 'Configure GitHub Actions.', assigneeId: '3', dueDate: new Date(new Date().setDate(today.getDate() - 1)), completed: true, createdAt: new Date(new Date().setDate(today.getDate() - 2)), completedAt: new Date(new Date().setDate(today.getDate() - 1)) },
+  { id: 't4', title: 'Write API documentation', description: 'Document all endpoints.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 7)), completed: false, createdAt: new Date(), completedAt: null },
+  { id: 't5', title: 'Deploy staging environment', description: 'Setup a staging server on Vercel.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 1)), completed: false, createdAt: new Date(), completedAt: null },
+  { id: 't6', title: 'Test payment flow', description: 'End-to-end testing of the payment gateway integration.', assigneeId: '2', dueDate: new Date(new Date().setDate(today.getDate() - 3)), completed: true, createdAt: new Date(new Date().setDate(today.getDate() - 5)), completedAt: new Date(new Date().setDate(today.getDate() - 3)) },
+];
+
 function HomeComponent() {
   const [members, setMembers] = useState<Member[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -24,25 +41,46 @@ function HomeComponent() {
 
   useEffect(() => {
     setIsClient(true);
-    const initialMembers: Member[] = [
-      { id: "1", name: "Alice", email: 'alice@example.com', avatarUrl: "https://picsum.photos/seed/alice/100/100", status: 'approved' },
-      { id: "2", name: "Bob", email: 'bob@example.com', avatarUrl: "https://picsum.photos/seed/bob/100/100", status: 'approved' },
-      { id: "3", name: "Charlie", email: 'charlie@example.com', avatarUrl: "https://picsum.photos/seed/charlie/100/100", status: 'approved' },
-      { id: '4', name: 'Diana', email: 'diana@example.com', avatarUrl: 'https://picsum.photos/seed/diana/100/100', status: 'approved' },
-    ];
+    try {
+      const storedMembers = localStorage.getItem("splitwork_members");
+      const storedTasks = localStorage.getItem("splitwork_tasks");
 
-    const today = new Date();
-    const initialTasks: Task[] = [
-      { id: 't1', title: 'Design new landing page', description: 'Create a Figma mockup.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 3)), completed: false, createdAt: new Date(), completedAt: null },
-      { id: 't2', title: 'Develop API for user auth', description: 'Setup endpoints for registration, login, logout.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 5)), completed: false, createdAt: new Date(), completedAt: null },
-      { id: 't3', title: 'Setup CI/CD pipeline', description: 'Configure GitHub Actions.', assigneeId: '3', dueDate: new Date(new Date().setDate(today.getDate() - 1)), completed: true, createdAt: new Date(new Date().setDate(today.getDate() - 2)), completedAt: new Date(new Date().setDate(today.getDate() - 1)) },
-      { id: 't4', title: 'Write API documentation', description: 'Document all endpoints.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 7)), completed: false, createdAt: new Date(), completedAt: null },
-      { id: 't5', title: 'Deploy staging environment', description: 'Setup a staging server on Vercel.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 1)), completed: false, createdAt: new Date(), completedAt: null },
-      { id: 't6', title: 'Test payment flow', description: 'End-to-end testing of the payment gateway integration.', assigneeId: '2', dueDate: new Date(new Date().setDate(today.getDate() - 3)), completed: true, createdAt: new Date(new Date().setDate(today.getDate() - 5)), completedAt: new Date(new Date().setDate(today.getDate() - 3)) },
-    ];
-    setMembers(initialMembers);
-    setTasks(initialTasks);
+      if (storedMembers) {
+        setMembers(JSON.parse(storedMembers));
+      } else {
+        setMembers(initialMembers);
+      }
+
+      if (storedTasks) {
+        const parsedTasks = JSON.parse(storedTasks).map((task: Task) => ({
+          ...task,
+          dueDate: new Date(task.dueDate),
+          createdAt: new Date(task.createdAt),
+          completedAt: task.completedAt ? new Date(task.completedAt) : null,
+        }));
+        setTasks(parsedTasks);
+      } else {
+        setTasks(initialTasks);
+      }
+    } catch (error) {
+      console.error("Failed to load data from localStorage", error);
+      setMembers(initialMembers);
+      setTasks(initialTasks);
+    }
   }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem("splitwork_members", JSON.stringify(members));
+    }
+  }, [members, isClient]);
+
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem("splitwork_tasks", JSON.stringify(tasks));
+    }
+  }, [tasks, isClient]);
+
 
   const handleAddMember = (name: string, email: string, fromUrl = false) => {
     const newMember: Member = {
@@ -56,6 +94,7 @@ function HomeComponent() {
   };
   
   useEffect(() => {
+    if (!isClient) return;
     const newMemberName = searchParams.get('newMember');
     const newMemberEmail = searchParams.get('email');
     if (newMemberName && newMemberEmail) {
@@ -64,11 +103,9 @@ function HomeComponent() {
       if (!members.some(m => m.email === decodedEmail)) {
         handleAddMember(decodedName, decodedEmail, true);
       }
-      // This is a bit of a hack to remove the query param from the URL without a full page reload.
-      // It keeps the URL clean after the member is added.
       window.history.replaceState({}, '', '/');
     }
-  }, [searchParams, members]);
+  }, [searchParams, members, isClient]);
 
   
   const handleApproveMember = (memberId: string) => {
@@ -245,4 +282,6 @@ export default function Home() {
   )
 }
     
+    
+
     
