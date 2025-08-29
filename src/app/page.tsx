@@ -83,17 +83,6 @@ function HomeComponent() {
   }, [invitedEmails, isClient]);
 
 
-  const handleAddMember = (name: string, email: string) => {
-    const newMember: Member = {
-      id: Date.now().toString(),
-      name,
-      email,
-      avatarUrl: `https://picsum.photos/seed/${name}/100/100`,
-      status: 'pending',
-    };
-    setMembers((prev) => [...prev, newMember]);
-  };
-  
   useEffect(() => {
     if (!isClient) return;
     const newMemberName = searchParams.get('newMember');
@@ -120,7 +109,7 @@ function HomeComponent() {
       // Use router.replace to clean up URL without adding to history
       router.replace('/', undefined);
     }
-  }, [searchParams, isClient, members, router]);
+  }, [searchParams, isClient, members, router, setMembers, setInvitedEmails]);
   
   const handleInviteMember = (email: string) => {
     const newInvite: InvitedEmail = {
@@ -303,3 +292,5 @@ export default function Home() {
     </Suspense>
   )
 }
+
+    
