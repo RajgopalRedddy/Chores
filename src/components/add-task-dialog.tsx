@@ -22,16 +22,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, PlusCircle } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddTaskDialogProps {
   members: Member[];
-  onAddTask: (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt">) => void;
+  onAddTask: (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "dueDate">) => void;
 }
 
 export function AddTaskDialog({ members, onAddTask }: AddTaskDialogProps) {
@@ -39,21 +35,20 @@ export function AddTaskDialog({ members, onAddTask }: AddTaskDialogProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [assigneeId, setAssigneeId] = useState<string | null>(null);
-  const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !assigneeId || !dueDate) {
+    if (!title.trim() || !assigneeId) {
       toast({
         title: "Missing Information",
-        description: "Please fill out all required fields.",
+        description: "Please fill out title and assignee.",
         variant: "destructive",
       });
       return;
     }
 
-    onAddTask({ title, description, assigneeId, dueDate });
+    onAddTask({ title, description, assigneeId });
     toast({
       title: "Task Created",
       description: `"${title}" has been assigned.`,
@@ -63,7 +58,6 @@ export function AddTaskDialog({ members, onAddTask }: AddTaskDialogProps) {
     setTitle("");
     setDescription("");
     setAssigneeId(null);
-    setDueDate(undefined);
     setOpen(false);
   };
 
@@ -102,47 +96,20 @@ export function AddTaskDialog({ members, onAddTask }: AddTaskDialogProps) {
                 placeholder="Add more details about the task"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="assignee">Assign to</Label>
-                <Select onValueChange={setAssigneeId} value={assigneeId || ""}>
-                  <SelectTrigger id="assignee">
-                    <SelectValue placeholder="Select a member" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {members.map((member) => (
-                      <SelectItem key={member.id} value={member.id}>
-                        {member.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="due-date">Due Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !dueDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={dueDate}
-                      onSelect={setDueDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="assignee">Assign to</Label>
+              <Select onValueChange={setAssigneeId} value={assigneeId || ""}>
+                <SelectTrigger id="assignee">
+                  <SelectValue placeholder="Select a member" />
+                </SelectTrigger>
+                <SelectContent>
+                  {members.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

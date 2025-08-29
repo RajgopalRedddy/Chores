@@ -76,13 +76,14 @@ function HomeComponent() {
     setMembers(prev => prev.filter(m => m.id !== memberId));
   };
 
-  const handleAddTask = (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt">) => {
+  const handleAddTask = (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "dueDate">) => {
     const newTask: Task = {
       ...taskData,
       id: Date.now().toString(),
       completed: false,
       createdAt: new Date(),
       completedAt: null,
+      dueDate: new Date(new Date().setDate(new Date().getDate() + 7))
     };
     setTasks((prev) => [newTask, ...prev]);
   };
