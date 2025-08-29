@@ -19,12 +19,13 @@ import { Copy, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddMemberDialogProps {
-  onAddMember: (name: string, fromUrl?: boolean) => void;
+  onAddMember: (name: string, email: string, fromUrl?: boolean) => void;
 }
 
 export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
 
@@ -44,18 +45,19 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) {
-      onAddMember(name.trim(), false);
+    if (name.trim() && email.trim()) {
+      onAddMember(name.trim(), email.trim(), false);
       toast({
         title: "Member Added",
         description: `${name.trim()} has been added to the group.`,
       });
       setName("");
+      setEmail("");
       setOpen(false);
     } else {
         toast({
             title: "Error",
-            description: "Member name cannot be empty.",
+            description: "Member name and email cannot be empty.",
             variant: "destructive",
         })
     }
@@ -98,17 +100,26 @@ export function AddMemberDialog({ onAddMember }: AddMemberDialogProps) {
             </div>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
-                placeholder="e.g. Jane Doe"
-              />
+            <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Jane Doe"
+                  required
+                />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="e.g. jane.doe@example.com"
+                  required
+                />
             </div>
             <DialogFooter>
               <Button type="submit">Add Member</Button>

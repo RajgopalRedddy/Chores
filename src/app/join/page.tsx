@@ -11,13 +11,15 @@ import { SplitWorkLogo } from "@/components/split-work-logo";
 
 export default function JoinPage() {
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) {
+    if (name.trim() && email.trim()) {
       const encodedName = encodeURIComponent(name.trim());
-      router.push(`/?newMember=${encodedName}`);
+      const encodedEmail = encodeURIComponent(email.trim());
+      router.push(`/?newMember=${encodedName}&email=${encodedEmail}`);
     }
   };
 
@@ -31,9 +33,9 @@ export default function JoinPage() {
       </div>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Enter Your Name</CardTitle>
+          <CardTitle>Enter Your Details</CardTitle>
           <CardDescription>
-            You've been invited to join a team. Please enter your name to continue.
+            You've been invited to join a team. Please enter your name and email to continue.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -45,6 +47,17 @@ export default function JoinPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Jane Doe"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Your Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. jane.doe@example.com"
                 required
               />
             </div>

@@ -25,10 +25,10 @@ function HomeComponent() {
   useEffect(() => {
     setIsClient(true);
     const initialMembers: Member[] = [
-      { id: "1", name: "Alice", avatarUrl: "https://picsum.photos/seed/alice/100/100", status: 'approved' },
-      { id: "2", name: "Bob", avatarUrl: "https://picsum.photos/seed/bob/100/100", status: 'approved' },
-      { id: "3", name: "Charlie", avatarUrl: "https://picsum.photos/seed/charlie/100/100", status: 'approved' },
-      { id: '4', name: 'Diana', avatarUrl: 'https://picsum.photos/seed/diana/100/100', status: 'approved' },
+      { id: "1", name: "Alice", email: 'alice@example.com', avatarUrl: "https://picsum.photos/seed/alice/100/100", status: 'approved' },
+      { id: "2", name: "Bob", email: 'bob@example.com', avatarUrl: "https://picsum.photos/seed/bob/100/100", status: 'approved' },
+      { id: "3", name: "Charlie", email: 'charlie@example.com', avatarUrl: "https://picsum.photos/seed/charlie/100/100", status: 'approved' },
+      { id: '4', name: 'Diana', email: 'diana@example.com', avatarUrl: 'https://picsum.photos/seed/diana/100/100', status: 'approved' },
     ];
 
     const today = new Date();
@@ -44,10 +44,11 @@ function HomeComponent() {
     setTasks(initialTasks);
   }, []);
 
-  const handleAddMember = (name: string, fromUrl = false) => {
+  const handleAddMember = (name: string, email: string, fromUrl = false) => {
     const newMember: Member = {
       id: Date.now().toString(),
       name,
+      email,
       avatarUrl: `https://picsum.photos/seed/${name}/100/100`,
       status: fromUrl ? 'pending' : 'approved',
     };
@@ -56,10 +57,12 @@ function HomeComponent() {
   
   useEffect(() => {
     const newMemberName = searchParams.get('newMember');
-    if (newMemberName) {
+    const newMemberEmail = searchParams.get('email');
+    if (newMemberName && newMemberEmail) {
       const decodedName = decodeURIComponent(newMemberName);
-      if (!members.some(m => m.name === decodedName)) {
-        handleAddMember(decodedName, true);
+      const decodedEmail = decodeURIComponent(newMemberEmail);
+      if (!members.some(m => m.email === decodedEmail)) {
+        handleAddMember(decodedName, decodedEmail, true);
       }
       // This is a bit of a hack to remove the query param from the URL without a full page reload.
       // It keeps the URL clean after the member is added.
@@ -165,7 +168,10 @@ function HomeComponent() {
                                 <AvatarImage src={member.avatarUrl} alt={member.name} data-ai-hint="person portrait" />
                                 <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                             </Avatar>
-                            <p className="font-semibold">{member.name}</p>
+                            <div>
+                                <p className="font-semibold">{member.name}</p>
+                                <p className="text-sm text-muted-foreground">{member.email}</p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2">
                             <Button size="icon" variant="outline" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDeclineMember(member.id)}>
