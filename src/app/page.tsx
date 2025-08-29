@@ -120,7 +120,7 @@ function HomeComponent() {
       // Use router.replace to clean up URL without adding to history
       router.replace('/', undefined);
     }
-  }, [searchParams, isClient]);
+  }, [searchParams, isClient, members, router]);
   
   const handleInviteMember = (email: string) => {
     const newInvite: InvitedEmail = {
@@ -303,5 +303,3 @@ export default function Home() {
     </Suspense>
   )
 }
-
-    
