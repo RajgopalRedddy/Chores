@@ -109,7 +109,7 @@ function HomeComponent() {
       // Use router.replace to clean up URL without adding to history
       router.replace('/', undefined);
     }
-  }, [searchParams, isClient, members, router, setMembers, setInvitedEmails]);
+  }, [searchParams, isClient]);
   
   const handleInviteMember = (email: string) => {
     const newInvite: InvitedEmail = {
@@ -127,7 +127,7 @@ function HomeComponent() {
     setMembers(prev => prev.filter(m => m.id !== memberId));
   };
 
-  const handleAddTask = (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "dueDate" | "assigneeId">) => {
+  const handleAddTask = (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "assigneeId" | "dueDate">) => {
     const newTask: Task = {
       ...taskData,
       id: Date.now().toString(),
@@ -148,7 +148,7 @@ function HomeComponent() {
               ...task, 
               completed: !task.completed, 
               completedAt: !task.completed ? new Date() : null,
-              assigneeId: !task.completed ? memberId : null,
+              assigneeId: !task.completed ? memberId : task.assigneeId,
             }
           : task
       )
@@ -292,5 +292,3 @@ export default function Home() {
     </Suspense>
   )
 }
-
-    

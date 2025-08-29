@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -14,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { format, isPast } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Calendar, Trash2, Check, User, Users } from "lucide-react";
+import { Calendar, Trash2, Check, User, Users, Undo } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -71,14 +72,17 @@ export function TaskCard({ task, members, onToggleCompletion, onDelete }: TaskCa
                   </DropdownMenu>
                 ) : (
                    <Button variant="outline" size="sm" className="h-8" onClick={() => onToggleCompletion(task.id, task.assigneeId!)}>
+                      <Undo className="mr-2 h-4 w-4" />
                       Undo
                    </Button>
                 )}
             </div>
         </div>
-        <CardDescription className={cn(task.completed && "line-through text-muted-foreground/80")}>
-            {task.description}
-        </CardDescription>
+        {task.description && (
+          <CardDescription className={cn(task.completed && "line-through text-muted-foreground/80")}>
+              {task.description}
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="flex items-center space-x-2 text-sm text-muted-foreground">

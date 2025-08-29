@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -19,7 +20,7 @@ import { PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddTaskDialogProps {
-  onAddTask: (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "dueDate" | "assigneeId">) => void;
+  onAddTask: (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "assigneeId" | "dueDate">) => void;
 }
 
 export function AddTaskDialog({ onAddTask }: AddTaskDialogProps) {
