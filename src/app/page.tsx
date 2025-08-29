@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, Suspense } from "react";
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import type { Member, Task, InvitedEmail } from "@/types";
 import { Button } from "@/components/ui/button";
 import { SplitWorkLogo } from "@/components/split-work-logo";
@@ -25,6 +25,7 @@ function HomeComponent() {
   const [invitedEmails, setInvitedEmails] = useState<InvitedEmail[]>([]);
   const [isClient, setIsClient] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
@@ -100,14 +101,26 @@ function HomeComponent() {
     if (newMemberName && newMemberEmail) {
       const decodedName = decodeURIComponent(newMemberName);
       const decodedEmail = decodeURIComponent(newMemberEmail);
-      if (!members.some(m => m.email === decodedEmail)) {
-        handleAddMember(decodedName, decodedEmail);
+      
+      const memberExists = members.some(m => m.email.toLowerCase() === decodedEmail.toLowerCase());
+
+      if (!memberExists) {
+        const newMember: Member = {
+          id: Date.now().toString(),
+          name: decodedName,
+          email: decodedEmail,
+          avatarUrl: `https://picsum.photos/seed/${decodedName}/100/100`,
+          status: 'pending',
+        };
+        setMembers((prev) => [...prev, newMember]);
+        // Remove the invited email from the list once they've registered
+        setInvitedEmails(prev => prev.filter(i => i.email.toLowerCase() !== decodedEmail.toLowerCase()));
       }
-      // Remove the invited email from the list once they've registered
-      setInvitedEmails(prev => prev.filter(i => i.email !== decodedEmail));
-      window.history.replaceState({}, '', '/');
+      
+      // Use router.replace to clean up URL without adding to history
+      router.replace('/', undefined);
     }
-  }, [searchParams, members, isClient]);
+  }, [searchParams, isClient]);
   
   const handleInviteMember = (email: string) => {
     const newInvite: InvitedEmail = {
@@ -224,7 +237,7 @@ function HomeComponent() {
                                 <X className="size-4" />
                                 <span className="sr-only">Decline</span>
                             </Button>
-                            <Button size="icon" variant="outline" className="text-accent hover:bg-accent/10 hover:text-accent" onClick={() => handleApproveMember(member.id)}>
+                            <Button size="icon" variant="outline" className="text-green-600 hover:bg-green-600/10 hover:text-green-600" onClick={() => handleApproveMember(member.id)}>
                                 <Check className="size-4" />
                                 <span className="sr-only">Approve</span>
                             </Button>
@@ -290,3 +303,5 @@ export default function Home() {
     </Suspense>
   )
 }
+
+    
