@@ -16,22 +16,8 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const initialMembers: Member[] = [
-  { id: "1", name: "Alice", email: 'alice@example.com', avatarUrl: "https://picsum.photos/seed/alice/100/100", status: 'approved' },
-  { id: "2", name: "Bob", email: 'bob@example.com', avatarUrl: "https://picsum.photos/seed/bob/100/100", status: 'approved' },
-  { id: "3", name: "Charlie", email: 'charlie@example.com', avatarUrl: "https://picsum.photos/seed/charlie/100/100", status: 'approved' },
-  { id: '4', name: 'Diana', email: 'diana@example.com', avatarUrl: 'https://picsum.photos/seed/diana/100/100', status: 'approved' },
-];
-
-const today = new Date();
-const initialTasks: Task[] = [
-  { id: 't1', title: 'Design new landing page', description: 'Create a Figma mockup.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 3)), completed: false, createdAt: new Date(), completedAt: null },
-  { id: 't2', title: 'Develop API for user auth', description: 'Setup endpoints for registration, login, logout.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 5)), completed: false, createdAt: new Date(), completedAt: null },
-  { id: 't3', title: 'Setup CI/CD pipeline', description: 'Configure GitHub Actions.', assigneeId: '3', dueDate: new Date(new Date().setDate(today.getDate() - 1)), completed: true, createdAt: new Date(new Date().setDate(today.getDate() - 2)), completedAt: new Date(new Date().setDate(today.getDate() - 1)) },
-  { id: 't4', title: 'Write API documentation', description: 'Document all endpoints.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 7)), completed: false, createdAt: new Date(), completedAt: null },
-  { id: 't5', title: 'Deploy staging environment', description: 'Setup a staging server on Vercel.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 1)), completed: false, createdAt: new Date(), completedAt: null },
-  { id: 't6', title: 'Test payment flow', description: 'End-to-end testing of the payment gateway integration.', assigneeId: '2', dueDate: new Date(new Date().setDate(today.getDate() - 3)), completed: true, createdAt: new Date(new Date().setDate(today.getDate() - 5)), completedAt: new Date(new Date().setDate(today.getDate() - 3)) },
-];
+const initialMembers: Member[] = [];
+const initialTasks: Task[] = [];
 
 function HomeComponent() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -265,7 +251,7 @@ function HomeComponent() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground">All tasks completed. Great job, team!</p>
+              <p className="text-muted-foreground">No tasks to do. Add a new task to get started!</p>
             )}
           </section>
 
@@ -284,7 +270,7 @@ function HomeComponent() {
               ))}
             </div>
             ) : (
-                <p className="text-muted-foreground">No tasks completed yet. Let's get to work!</p>
+                <p className="text-muted-foreground">No tasks completed yet.</p>
             )}
           </section>
         </div>
