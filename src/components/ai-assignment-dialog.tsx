@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { BrainCircuit, Loader2, UserCheck } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface AiAssignmentDialogProps {
@@ -78,15 +78,14 @@ export function AiAssignmentDialog({ members, tasks }: AiAssignmentDialogProps) 
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <BrainCircuit className="mr-2 h-4 w-4" /> AI Assign Task
+          <BrainCircuit className="mr-2 h-4 w-4" /> AI Suggest
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>AI Task Assignment</DialogTitle>
+          <DialogTitle>AI Task Suggestions</DialogTitle>
           <DialogDescription>
-            Describe the task and let AI suggest the best person for the job
-            based on current workload.
+            Describe a task and let AI suggest suitable members based on their current workload. The task will be created for the whole group.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">

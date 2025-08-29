@@ -33,11 +33,11 @@ function HomeComponent() {
 
     const today = new Date();
     const initialTasks: Task[] = [
-      { id: 't1', title: 'Design new landing page', description: 'Create a Figma mockup.', assigneeId: '1', dueDate: new Date(new Date().setDate(today.getDate() + 3)), completed: false, createdAt: new Date(), completedAt: null },
-      { id: 't2', title: 'Develop API for user auth', description: 'Setup endpoints for registration, login, logout.', assigneeId: '2', dueDate: new Date(new Date().setDate(today.getDate() + 5)), completed: false, createdAt: new Date(), completedAt: null },
+      { id: 't1', title: 'Design new landing page', description: 'Create a Figma mockup.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 3)), completed: false, createdAt: new Date(), completedAt: null },
+      { id: 't2', title: 'Develop API for user auth', description: 'Setup endpoints for registration, login, logout.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 5)), completed: false, createdAt: new Date(), completedAt: null },
       { id: 't3', title: 'Setup CI/CD pipeline', description: 'Configure GitHub Actions.', assigneeId: '3', dueDate: new Date(new Date().setDate(today.getDate() - 1)), completed: true, createdAt: new Date(new Date().setDate(today.getDate() - 2)), completedAt: new Date(new Date().setDate(today.getDate() - 1)) },
-      { id: 't4', title: 'Write API documentation', description: 'Document all endpoints.', assigneeId: '1', dueDate: new Date(new Date().setDate(today.getDate() + 7)), completed: false, createdAt: new Date(), completedAt: null },
-      { id: 't5', title: 'Deploy staging environment', description: 'Setup a staging server on Vercel.', assigneeId: '4', dueDate: new Date(new Date().setDate(today.getDate() + 1)), completed: false, createdAt: new Date(), completedAt: null },
+      { id: 't4', title: 'Write API documentation', description: 'Document all endpoints.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 7)), completed: false, createdAt: new Date(), completedAt: null },
+      { id: 't5', title: 'Deploy staging environment', description: 'Setup a staging server on Vercel.', assigneeId: null, dueDate: new Date(new Date().setDate(today.getDate() + 1)), completed: false, createdAt: new Date(), completedAt: null },
       { id: 't6', title: 'Test payment flow', description: 'End-to-end testing of the payment gateway integration.', assigneeId: '2', dueDate: new Date(new Date().setDate(today.getDate() - 3)), completed: true, createdAt: new Date(new Date().setDate(today.getDate() - 5)), completedAt: new Date(new Date().setDate(today.getDate() - 3)) },
     ];
     setMembers(initialMembers);
@@ -76,23 +76,29 @@ function HomeComponent() {
     setMembers(prev => prev.filter(m => m.id !== memberId));
   };
 
-  const handleAddTask = (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "dueDate">) => {
+  const handleAddTask = (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "dueDate" | "assigneeId">) => {
     const newTask: Task = {
       ...taskData,
       id: Date.now().toString(),
       completed: false,
       createdAt: new Date(),
       completedAt: null,
+      assigneeId: null,
       dueDate: new Date(new Date().setDate(new Date().getDate() + 7))
     };
     setTasks((prev) => [newTask, ...prev]);
   };
 
-  const handleToggleTaskCompletion = (taskId: string) => {
+  const handleToggleTaskCompletion = (taskId: string, memberId: string) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
         task.id === taskId
-          ? { ...task, completed: !task.completed, completedAt: !task.completed ? new Date() : null }
+          ? { 
+              ...task, 
+              completed: !task.completed, 
+              completedAt: !task.completed ? new Date() : null,
+              assigneeId: !task.completed ? memberId : null,
+            }
           : task
       )
     );
@@ -133,7 +139,7 @@ function HomeComponent() {
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <AddMemberDialog onAddMember={handleAddMember} />
-              <AddTaskDialog members={approvedMembers} onAddTask={handleAddTask} />
+              <AddTaskDialog onAddTask={handleAddTask} />
             </div>
           </div>
           <div className="pb-4 flex flex-wrap gap-2">
@@ -186,7 +192,7 @@ function HomeComponent() {
                   <TaskCard
                     key={task.id}
                     task={task}
-                    assignee={approvedMembers.find((m) => m.id === task.assigneeId)}
+                    members={approvedMembers}
                     onToggleCompletion={handleToggleTaskCompletion}
                     onDelete={handleDeleteTask}
                   />
@@ -205,7 +211,7 @@ function HomeComponent() {
                 <TaskCard
                   key={task.id}
                   task={task}
-                  assignee={approvedMembers.find((m) => m.id === task.assigneeId)}
+                  members={approvedMembers}
                   onToggleCompletion={handleToggleTaskCompletion}
                   onDelete={handleDeleteTask}
                 />

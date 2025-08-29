@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Member, Task } from "@/types";
+import type { Task } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,49 +15,39 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { PlusCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddTaskDialogProps {
-  members: Member[];
-  onAddTask: (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "dueDate">) => void;
+  onAddTask: (taskData: Omit<Task, "id" | "completed" | "createdAt" | "completedAt" | "dueDate" | "assigneeId">) => void;
 }
 
-export function AddTaskDialog({ members, onAddTask }: AddTaskDialogProps) {
+export function AddTaskDialog({ onAddTask }: AddTaskDialogProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [assigneeId, setAssigneeId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !assigneeId) {
+    if (!title.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please fill out title and assignee.",
+        description: "Please fill out the task title.",
         variant: "destructive",
       });
       return;
     }
 
-    onAddTask({ title, description, assigneeId });
+    onAddTask({ title, description });
     toast({
       title: "Task Created",
-      description: `"${title}" has been assigned.`,
+      description: `"${title}" has been added for the group.`,
     });
 
     // Reset form
     setTitle("");
     setDescription("");
-    setAssigneeId(null);
     setOpen(false);
   };
 
@@ -71,9 +61,9 @@ export function AddTaskDialog({ members, onAddTask }: AddTaskDialogProps) {
       <DialogContent className="sm:max-w-[480px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Create a New Task</DialogTitle>
+            <DialogTitle>Create a New Task for the Group</DialogTitle>
             <DialogDescription>
-              Fill in the details below to create and assign a new task.
+              Fill in the details below. The task will be available for any member to pick up.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -95,21 +85,6 @@ export function AddTaskDialog({ members, onAddTask }: AddTaskDialogProps) {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add more details about the task"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="assignee">Assign to</Label>
-              <Select onValueChange={setAssigneeId} value={assigneeId || ""}>
-                <SelectTrigger id="assignee">
-                  <SelectValue placeholder="Select a member" />
-                </SelectTrigger>
-                <SelectContent>
-                  {members.map((member) => (
-                    <SelectItem key={member.id} value={member.id}>
-                      {member.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </div>
           <DialogFooter>

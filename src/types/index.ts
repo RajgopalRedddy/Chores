@@ -9,7 +9,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  assigneeId: string | null;
+  assigneeId: string | null; // This is now who completed the task
   dueDate: Date;
   completed: boolean;
   createdAt: Date;

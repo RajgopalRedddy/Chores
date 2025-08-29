@@ -67,14 +67,20 @@ export function TaskReportDialog({ members, tasks }: TaskReportDialogProps) {
     }
 
     const memberTasks = tasks.filter((t) => t.assigneeId === selectedMemberId);
-
-    const completedTasks = memberTasks.filter(
-      (t) => t.completed && t.completedAt && isWithinInterval(t.completedAt, interval)
+    
+    const completedTasks = tasks.filter(
+      (t) => t.completed && t.completedAt && t.assigneeId === selectedMemberId && isWithinInterval(t.completedAt, interval)
     );
-    const pendingTasks = memberTasks.filter((t) => !t.completed);
+      
+    const pendingTasks = tasks.filter((t) => !t.completed);
 
     return { completedTasks, pendingTasks };
   }, [selectedMemberId, granularity, tasks]);
+  
+  const allTimeCompleted = useMemo(() => {
+     if(!selectedMemberId) return [];
+     return tasks.filter(t => t.completed && t.assigneeId === selectedMemberId);
+  }, [selectedMemberId, tasks]);
 
   const selectedMember = members.find(m => m.id === selectedMemberId);
 
@@ -124,18 +130,22 @@ export function TaskReportDialog({ members, tasks }: TaskReportDialogProps) {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-headline">
-                {granularity} Report for {selectedMember.name}
+                Report for {selectedMember.name}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-around text-center">
                 <div>
                   <p className="text-2xl font-bold text-accent">{report.completedTasks.length}</p>
-                  <p className="text-sm text-muted-foreground">Completed</p>
+                  <p className="text-sm text-muted-foreground">Completed ({granularity})</p>
+                </div>
+                 <div>
+                  <p className="text-2xl font-bold">{allTimeCompleted.length}</p>
+                  <p className="text-sm text-muted-foreground">Completed (All Time)</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-primary">{report.pendingTasks.length}</p>
-                  <p className="text-sm text-muted-foreground">Pending</p>
+                  <p className="text-sm text-muted-foreground">Pending (Group)</p>
                 </div>
               </div>
               <Separator />
@@ -149,7 +159,7 @@ export function TaskReportDialog({ members, tasks }: TaskReportDialogProps) {
                 </div>
                 <Separator />
                 <div>
-                    <h4 className="font-semibold mb-2 flex items-center gap-2"><ListTodo className="text-primary size-5"/> All Pending Tasks</h4>
+                    <h4 className="font-semibold mb-2 flex items-center gap-2"><ListTodo className="text-primary size-5"/> All Pending Group Tasks</h4>
                      {report.pendingTasks.length > 0 ? (
                         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                             {report.pendingTasks.map(task => <li key={task.id}>{task.title}</li>)}
