@@ -1,4 +1,4 @@
-export function SplitWorkLogo({ className }: { className?: string }) {
+export function ChoresLogo({ className }: { className?: string }) {
   return (
     <div
       className={`flex items-center justify-center size-10 bg-primary rounded-lg text-primary-foreground ${className}`}

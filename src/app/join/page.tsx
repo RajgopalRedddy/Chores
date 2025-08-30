@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { SplitWorkLogo } from "@/components/split-work-logo";
+import { ChoresLogo } from "@/components/chores-logo";
 import { useToast } from "@/hooks/use-toast";
 import type { InvitedEmail } from "@/types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -24,7 +24,7 @@ export default function JoinPage() {
   useEffect(() => {
     setIsClient(true);
     try {
-      const storedInvitedEmails = localStorage.getItem("splitwork_invited_emails");
+      const storedInvitedEmails = localStorage.getItem("chores_invited_emails");
       if(storedInvitedEmails) {
         setInvitedEmails(JSON.parse(storedInvitedEmails).map((invited: InvitedEmail) => ({...invited, invitedAt: new Date(invited.invitedAt)})));
       }
@@ -57,9 +57,9 @@ export default function JoinPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <div className="flex items-center space-x-4 mb-8">
-        <SplitWorkLogo />
+        <ChoresLogo />
         <h1 className="text-3xl font-bold font-headline text-foreground">
-          Join a Team on SplitWork
+          Join a Team on Chores
         </h1>
       </div>
       <Card className="w-full max-w-md">

@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from 'next/navigation'
 import type { Member, Task, InvitedEmail } from "@/types";
 import { Button } from "@/components/ui/button";
-import { SplitWorkLogo } from "@/components/split-work-logo";
+import { ChoresLogo } from "@/components/chores-logo";
 import { AddTaskDialog } from "@/components/add-task-dialog";
 import { AddMemberDialog } from "@/components/add-member-dialog";
 import { AiAssignmentDialog } from "@/components/ai-assignment-dialog";
@@ -30,9 +30,9 @@ function HomeComponent() {
   useEffect(() => {
     setIsClient(true);
     try {
-      const storedMembers = localStorage.getItem("splitwork_members");
-      const storedTasks = localStorage.getItem("splitwork_tasks");
-      const storedInvitedEmails = localStorage.getItem("splitwork_invited_emails");
+      const storedMembers = localStorage.getItem("chores_members");
+      const storedTasks = localStorage.getItem("chores_tasks");
+      const storedInvitedEmails = localStorage.getItem("chores_invited_emails");
 
       if (storedMembers) {
         setMembers(JSON.parse(storedMembers));
@@ -66,19 +66,19 @@ function HomeComponent() {
 
   useEffect(() => {
     if (isClient) {
-      localStorage.setItem("splitwork_members", JSON.stringify(members));
+      localStorage.setItem("chores_members", JSON.stringify(members));
     }
   }, [members, isClient]);
 
   useEffect(() => {
     if (isClient) {
-      localStorage.setItem("splitwork_tasks", JSON.stringify(tasks));
+      localStorage.setItem("chores_tasks", JSON.stringify(tasks));
     }
   }, [tasks, isClient]);
 
   useEffect(() => {
     if (isClient) {
-      localStorage.setItem("splitwork_invited_emails", JSON.stringify(invitedEmails));
+      localStorage.setItem("chores_invited_emails", JSON.stringify(invitedEmails));
     }
   }, [invitedEmails, isClient]);
 
@@ -183,9 +183,9 @@ function HomeComponent() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center space-x-4">
-              <SplitWorkLogo />
+              <ChoresLogo />
               <h1 className="text-2xl font-bold font-headline text-foreground">
-                SplitWork
+                Chores
               </h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -278,7 +278,7 @@ function HomeComponent() {
         </div>
       </main>
       <footer className="py-6 text-center text-muted-foreground text-sm">
-        <p>&copy; {new Date().getFullYear()} SplitWork. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Chores. All rights reserved.</p>
       </footer>
     </div>
   );
