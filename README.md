@@ -10,3 +10,6 @@ This is a Next.js application for managing and assigning tasks within a group.
 - **Reporting**: Generate reports on chore completion.
 
 Built with Next.js, TypeScript, Tailwind CSS, and Genkit AI.
+
+
+Note: I did this through the firebase, without any prior knowledge. I would like to know more about the implementation.
